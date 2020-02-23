@@ -30,7 +30,7 @@ class BinaryTree
         $statement->bindParam(":position", $position);
         $statement->execute();
         return $statement->fetch();
-    }   
+    }
 
     public function getTreeStructure()
     {
@@ -38,24 +38,24 @@ class BinaryTree
         $statement->execute();
         $cells = $statement->fetchAll();
         $tree = [];
-        
-        foreach($cells as $c) {
-            if($c['parent_id'] != 0) {
+
+        foreach ($cells as $k => $c) {
+            if ($c['parent_id'] != 0) {
                 $tree['object_' . $c['id']] = ['parent' => 'object_' . $c['parent_id'], 'name' => $c['id']];
             } else {
                 $tree['object_' . $c['id']] = ['name' => 'ROOT'];
             }
         }
-        
+
         return $tree;
     }
 
     public function createCell($parent_id, $position)
     {
-        if(!in_array($position, [1, 2])) {
+        if (!in_array($position, [1, 2])) {
             return ['status' => 'danger', 'message' => 'Можно добавлять ячейки только слева или справа'];
         }
-        
+
         $parent = $this->getCellById($parent_id);
 
         if (!$parent) {
@@ -111,22 +111,5 @@ class BinaryTree
 
             return $statement->execute();
         }
-    }
-    
-    private function _buildTree(&$cells, $parent_id = 0)
-    {
-        $tree = [];
-
-        foreach ($cells as $c) {
-            if ($c['parent_id'] == $parent_id) {
-                $sub = $this->_buildTree($cells, $c['id']);
-                if ($sub) {
-                    $c['sub'] = $sub;
-                }
-                $tree[$c['id']] = $c;
-                unset($cells[$c['id']]);
-            }
-        }
-        return $tree;
     }
 }
