@@ -34,7 +34,7 @@ class BinaryTree
 
     public function getTreeStructure()
     {
-        $statement = $this->db->prepare("SELECT * FROM tree ORDER BY parent_id ASC, position ASC");
+        $statement = $this->db->prepare("SELECT * FROM tree ORDER BY parent_id ASC, position ASC, level ASC");
         $statement->execute();
         $cells = $statement->fetchAll();
         $tree = [];
@@ -46,7 +46,9 @@ class BinaryTree
                 $tree['object_' . $c['id']] = ['name' => 'ROOT'];
             }
         }
-
+        
+        ksort($tree);
+        
         return $tree;
     }
 

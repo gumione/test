@@ -25,21 +25,39 @@ $tree = new BinaryTree($pdo);
 
         <div class="container-fluid">
             <h2 class="text-center">Тестовое задание</h2>
+            <?php
+            if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'create') {
+                $result = $tree->createCell(filter_input(INPUT_POST, 'parent_id'), filter_input(INPUT_POST, 'position'));
+            }
+
+            if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'fill') {
+                $tree_control = new BinaryTreeControl($pdo);
+                $result = $tree_control->fillTree(filter_input(INPUT_POST, 'level'));
+            }
+
+            if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'get') {
+                $tree_control = new BinaryTreeControl($pdo);
+                $nodes = $tree_control->getNodes(filter_input(INPUT_POST, 'id'), filter_input(INPUT_POST, 'direction'));
+            }
+
+            if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'move') {
+                $tree_control = new BinaryTreeControl($pdo);
+                $result = $tree_control->moveNode(filter_input(INPUT_POST, 'id'), filter_input(INPUT_POST, 'parent_id'), filter_input(INPUT_POST, 'position'));
+            }
+
+            ?>
+
+            <div class="row justify-content-center">
+                <?php if ($result): ?>
+                    <div class="alert alert-<?= $result['status'] ?> col-lg-10" role="alert">
+                        <?= $result['message'] ?>
+                    </div>
+                <?php endif; ?>
+            </div>
             <div class="row">
                 <div class="col-lg-3">
                     <h3>Создание ячейки</h3>
                     <hr/>
-                    <?php
-                    if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'create') {
-                        $result = $tree->createCell(filter_input(INPUT_POST, 'parent_id'), filter_input(INPUT_POST, 'position'));
-                    }
-
-                    ?>
-                    <?php if ($result): ?>
-                        <div class="alert alert-<?= $result['status'] ?>" role="alert">
-                            <?= $result['message'] ?>
-                        </div>
-                    <?php endif; ?>
 
                     <form method="post">
                         <input type="hidden" name="action" value="create"/>
@@ -57,18 +75,6 @@ $tree = new BinaryTree($pdo);
                 <div class="col-lg-3">
                     <h3>Заполнение дерева</h3>
                     <hr/>
-                    <?php
-                    if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'fill') {
-                        $tree_control = new BinaryTreeControl($pdo);
-                        $result = $tree_control->fillTree(filter_input(INPUT_POST, 'level'));
-                    }
-
-                    ?>
-                    <?php if ($result): ?>
-                        <div class="alert alert-<?= $result['status'] ?>" role="alert">
-                            <?= $result['message'] ?>
-                        </div>
-                    <?php endif; ?>
                     <form method="post">
                         <input type="hidden" name="action" value="fill"/>
                         <div class="form-group">
@@ -81,13 +87,6 @@ $tree = new BinaryTree($pdo);
                 <div class="col-lg-3">
                     <h3>Получить ячейки</h3>
                     <hr/>
-                    <?php
-                    if (!empty($_POST) AND filter_input(INPUT_POST, 'action') == 'get') {
-                        $tree_control = new BinaryTreeControl($pdo);
-                        $nodes = $tree_control->getNodes(filter_input(INPUT_POST, 'id'), filter_input(INPUT_POST, 'direction'));
-                    }
-
-                    ?>
                     <form method="post">
                         <input type="hidden" name="action" value="get"/>
                         <div class="form-group">
@@ -111,6 +110,26 @@ $tree = new BinaryTree($pdo);
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>
+                </div>
+                <div class="col-lg-3">
+                    <h3>Переместить ячейки</h3>
+                    <hr/>
+                    <form method="post">
+                        <input type="hidden" name="action" value="move"/>
+                        <div class="form-group">
+                            <label for="id">ID</label>
+                            <input type="text" class="form-control" id="id" name="id" value="<?= (filter_input(INPUT_POST, 'id')) ? htmlspecialchars(filter_input(INPUT_POST, 'id')) : '1' ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="parent_id">Target ID</label>
+                            <input type="text" class="form-control" id="parent_id" name="parent_id" value="<?= htmlspecialchars(filter_input(INPUT_POST, 'parent_id')) ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <input type="text" class="form-control" id="position" name="position" value="<?= htmlspecialchars(filter_input(INPUT_POST, 'position')) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Переместить</button>
+                    </form>
                 </div>
             </div>
             <hr/>
@@ -145,17 +164,13 @@ $tree = new BinaryTree($pdo);
         chart_config = [
                 config
         ]
-
 <?php foreach ($cells as $k => $c): ?>
-    <?= $k ?> = {
-    <?php if (!$c['parent']): ?>
-                text: {name: '<?= $c['name'] ?>'}
-    <?php else: ?>
-                parent: <?= $c['parent'] ?>,
-                        text: {name: '<?= $c['name'] ?>'}
+    <?= $k ?> = {text: {name: '<?= $c['name'] ?>'}};
+<?php endforeach; ?>
+<?php foreach ($cells as $k => $c): ?>
+    <?php if ($c['parent']): ?>
+                <?= $k ?>.parent = <?= $c['parent'] ?>;
     <?php endif; ?>
-            }
-
             chart_config.push(<?= $k ?>);
 <?php endforeach; ?>
         var chart = new Treant(chart_config);
