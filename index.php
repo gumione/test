@@ -23,9 +23,11 @@ $tree = new BinaryTree($pdo);
     <body>
 
         <div class="container">
-            <div class="row justify-content-center">
+            <h2 class="text-center">Тестовое задание</h2>
+            <div class="row">
                 <div class="col-lg-4">
-
+                    <h3>Создание ячейки</h3>
+                    <hr/>
                     <?php
                     if (!empty($_POST)) {
                         $result = $tree->createCell($_POST['parent_id'], $_POST['position']);
@@ -47,10 +49,12 @@ $tree = new BinaryTree($pdo);
                             <label for="position">Position</label>
                             <input type="text" class="form-control" id="position" name="position" value="<?= htmlspecialchars($_POST['position']) ?>">
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-primary">Создать</button>
                     </form>
                 </div>
             </div>
+            <hr/>
+            <h2>Структура дерева</h2>
             <div class="row justify-content-center">
                 <div class="col-lg-12 col-md-12">
                     <div id="tree"> </div>

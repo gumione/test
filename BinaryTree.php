@@ -43,7 +43,7 @@ class BinaryTree
             if($c['parent_id'] != 0) {
                 $tree['object_' . $c['id']] = ['parent' => 'object_' . $c['parent_id'], 'name' => $c['id']];
             } else {
-                $tree['object_' . $c['id']] = ['name' => $c['id']];
+                $tree['object_' . $c['id']] = ['name' => 'ROOT'];
             }
         }
         
@@ -52,6 +52,10 @@ class BinaryTree
 
     public function createCell($parent_id, $position)
     {
+        if(!in_array($position, [1, 2])) {
+            return ['status' => 'danger', 'message' => 'Можно добавлять ячейки только слева или справа'];
+        }
+        
         $parent = $this->getCellById($parent_id);
 
         if (!$parent) {
